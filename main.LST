@@ -1,0 +1,120 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              10/12/2021 13:49:29 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <string.H>
+   3          #include "lcd.c"
+   4          
+   5          sbit dev=P0^0;
+   6          
+   7          sbit ir_in=P3^0;
+   8          sbit ir_out=P3^1;
+   9          
+  10          bit dev_stat = 0;
+  11          
+  12          unsigned int counter;
+  13          
+  14          void intro()
+  15          {
+  16   1        lcdclr();
+  17   1        lcdinit();
+  18   1        lcdstr("Auto Billing Mal ");
+  19   1        lcdcmd(0xc0);
+  20   1        lcdstr(" Shopping Cart ");
+  21   1        delay(65000);delay(65000);
+  22   1        lcdclr();
+  23   1      } 
+  24          
+  25          void convert(unsigned int g)
+  26          {
+  27   1        unsigned char temp,i=0,j=0;
+  28   1        unsigned int x=10000;
+  29   1        if(g==0)
+  30   1        {
+  31   2          lcddata('0');
+  32   2        }
+  33   1        else
+  34   1        {
+  35   2         while(x)
+  36   2         {
+  37   3          temp=g/x;
+  38   3          if((temp!=0)&&(i==0))
+  39   3            i++;
+  40   3          if((temp!=0)||(i!=0))
+  41   3            lcddata(temp+0x30);
+  42   3          g-=(x*temp);
+  43   3          x/=10;
+  44   3         }
+  45   2        }
+  46   1        lcdstr("   ");
+  47   1      }
+  48          
+  49          void main()
+  50          {
+  51   1      //  unsigned char check,i,pass[5],status,temp;
+  52   1        dev=0;
+  53   1        intro();
+  54   1        lcdcmd(0x80);
+  55   1        lcdstr("Counter: 0      ");
+C51 COMPILER V9.59.0.0   MAIN                                                              10/12/2021 13:49:29 PAGE 2   
+
+  56   1        lcdcmd(0xc0);
+  57   1        lcdstr(" Waiting For Product");
+  58   1        delay(65000);delay(65000);
+  59   1        while(1)
+  60   1        {
+  61   2          while((ir_in) && (ir_out));
+  62   2          if(!ir_in)
+  63   2          {
+  64   3           counter++;
+  65   3           lcdcmd(0x89);
+  66   3           convert(counter);
+  67   3           lcdcmd(0xc0);
+  68   3           lcdstr("   Product Add   ");
+  69   3           dev=1;
+  70   3           delay(6000);
+  71   3           while(!ir_in);
+  72   3          }
+  73   2          else if((!ir_out) && (counter!=0))
+  74   2          {
+  75   3           counter--;
+  76   3           lcdcmd(0x89);
+  77   3           convert(counter);
+  78   3           if (!counter)
+  79   3           {   
+  80   4            dev=0; 
+  81   4            lcdcmd(0xc0);
+  82   4            lcdstr(" Product Remove ");
+  83   4            delay(6000);
+  84   4           }
+  85   3           else{
+  86   4             dev=0; 
+  87   4            lcdcmd(0xb1);
+  88   4            lcdstr(" Product expired ");
+  89   4            delay(6000);
+  90   4           }
+  91   3             
+  92   3           while(!ir_out);
+  93   3          }
+  94   2        }
+  95   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    440    ----
+   CONSTANT SIZE    =    129    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
